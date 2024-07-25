@@ -1,9 +1,16 @@
-#include<cstdio>
-int n, r;
-int main() {
-    scanf("%d", &n);
-    for (int i = 1; i <= n; i *= 10) 
-		r += n - i + 1;
-    printf("%d", r);
+#include <iostream>
+
+int main()
+{
+    int num;
+    std::cin >> num;
+    int result = 0;
+
+    for (int i = 1; i <= num; i *= 10)
+    {
+        result += num - i + 1;
+    }
+    std::cout << result;
+
     return 0;
 }
