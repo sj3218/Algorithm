@@ -7,8 +7,8 @@ int main()
 {
     int n;
     cin >> n;
-    vector<int> arr;
-    int sum = 0;
+    vector<long long> arr;
+    long long sum = 0;
     int val;
     for(int i = 0; i< n;++i)
     {
