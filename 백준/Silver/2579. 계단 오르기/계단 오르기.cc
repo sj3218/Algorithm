@@ -1,37 +1,33 @@
 #include <iostream>
-#include <cstring>
-
+#include <algorithm>
 using namespace std;
 
-int N;
+int N; 
+int arr[301];
 int dp[301];
-int stairs[301];
-
-void Input()
-{
-    cin >> N;
-
-    memset(dp, -1, sizeof(dp));
-    memset(stairs, -1, sizeof(stairs));
-
-    for (int i = 1; i <= N; ++i)
-    {
-        cin >> stairs[i];
-    }
-}
 
 int main()
 {
-    Input();
-    dp[1] = stairs[1];
-    dp[2] = stairs[2] + stairs[1];
-    dp[3] = max(stairs[1], stairs[2]) + stairs[3];
-
-    for (int i = 4; i <= N; ++i)
+    ios_base::sync_with_stdio(false);
+    cin.tie(0); cout.tie(0);
+    
+    fill_n(dp, 301, -1);
+    
+    cin >> N;
+    for(int i = 1; i<= N;++i)
     {
-        dp[i] = max(dp[i - 2] + stairs[i], dp[i - 3] + stairs[i - 1] + stairs[i]);
+        cin >> arr[i];
     }
-
+    
+    dp[1] = arr[1];
+    dp[2] = arr[1] + arr[2];
+    dp[3] = max(arr[2], arr[1]) + arr[3];
+    
+    for(int i = 4; i<= N; ++i)
+    {
+        dp[i] = max(dp[i-3] + arr[i-1], dp[i-2]) + arr[i];
+    }
+    
     cout << dp[N];
     return 0;
 }
