@@ -1,42 +1,33 @@
 #include <iostream>
+
 using namespace std;
 
+bool dp[1001];
+int N;
 int main()
 {
-    int n;
-    cin >> n;
-    bool win_sk = false;
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
     
-    //짝수면 창영
-    //홀수면 상근
-    if(n % 2)
-    {
-        cout << "SK";
-    }
-    else 
-    {
-        cout <<"CY";
-    }
-    /*
-    int left = n % 3;
-    int div = n/ 3;
+    cin >> N;
     
-    if(left == 0)
+    dp[1] = true;
+    dp[2] = false;
+    dp[3] = true;
+    
+    for(int i = 4; i <=N; ++i)
     {
-        if(div % 2)
-        {
-            win_sk = true;
-        }
-        else     
-            win_sk = false;
+        dp[i] = !dp[i-3];
+    }
+    
+    if(dp[N] == true)
+    {
+        cout <<"SK";
     }
     else
     {
-        if(div % 2)
-        {
-            
-        }
-    }*/
-    
+        cout << "CY";
+    }
     return 0;
 }
