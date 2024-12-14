@@ -2,61 +2,91 @@
 #include <algorithm>
 #include <queue>
 #include <vector>
-
 using namespace std;
 
 int N, M;
-int arr[1001][1001];
-int Sr, Sc;
-int Fr, Fc;
-int H, W;
-
-int dx[4] = { 0,0,1,-1 };
-int dy[4] = { 1,-1,0,0 };
+int board[1001][1001];
+int H, W, Sr, Sc, Fr, Fc;
 
 int is_visited[1001][1001];
 bool can_visit[1001][1001];
-vector<pair<int, int>> wall_pos;
 
-bool InRange(int x, int y)
+int dx[4] = { 0,0,1,-1 };
+int dy[4] = { 1,-1, 0, 0 };
+
+bool InRange(int r, int c)
 {
-    if (x <= 0 || y <= 0 || x + H - 1 > N || y + W - 1 > M)
+    if (r <= 0 || r + H-1 > N || c <= 0 || c + W-1 > M)
     {
         return false;
     }
 
-    //for (int i = x; i < x + H; ++i)
-    //{
-    //    for (int j = y; j < y + W; ++j)
-    //    {
-    //        if (arr[i][j] == 1)
-    //        {
-    //            return false;
-    //        }
-    //    }
-    //}
-
     return true;
 }
 
-void Input()
+void bfs()
+{
+    queue<pair<int, int>> q;
+
+    q.push({ Sr,Sc });
+    is_visited[Sr][Sc] = 1;
+
+    int r, c;
+    while (!q.empty())
+    {
+        r = q.front().first;
+        c = q.front().second;
+        q.pop();
+
+        if (r == Fr && c == Fc)
+        {
+            return;
+        }
+
+        for (int i = 0; i < 4; ++i)
+        {
+            int nr = r + dx[i];
+            int nc = c + dy[i];
+
+            if (!InRange(nr, nc))
+            {
+                continue;
+            }
+
+            if (is_visited[nr][nc] != 0)
+            {
+                continue;
+            }
+
+            if (can_visit[nr][nc] == false)
+                continue;
+
+            is_visited[nr][nc] = is_visited[r][c] + 1;
+            q.push({ nr,nc });
+        }
+    }
+}
+
+int main()
 {
     ios_base::sync_with_stdio(false);
     cin.tie(0); cout.tie(0);
 
-    fill_n(is_visited[0], 1001 * 1001, -1);
+    cin >> N >> M;
+    fill_n(is_visited[0], 1001 * 1001, 0);
     fill_n(can_visit[0], 1001 * 1001, true);
 
-    cin >> N >> M;
+    vector<pair<int, int>> wall_pos;
 
     for (int i = 1; i <= N; ++i)
     {
         for (int j = 1; j <= M; ++j)
         {
-            cin >> arr[i][j];
-            if (arr[i][j] == 1)
+            cin >> board[i][j];
+
+            if (board[i][j] == 1)
             {
-                wall_pos.push_back({ i, j });
+                wall_pos.push_back({ i,j });
             }
         }
     }
@@ -65,6 +95,7 @@ void Input()
 
     int x, y;
     int size = wall_pos.size();
+
     for (int i = 0; i < size; ++i)
     {
         x = wall_pos[i].first;
@@ -75,47 +106,17 @@ void Input()
             for (int c = y - W + 1; c <= y; ++c)
             {
                 if (!InRange(r, c))
+                {
                     continue;
-
+                }
                 can_visit[r][c] = false;
             }
+
         }
     }
-}
 
-void BFS()
-{
-    queue<pair<int, int>> q;
-    q.push({ Sr, Sc });
-    is_visited[Sr][Sc] = 0;
+    bfs();
 
-    int x, y;
-    while (!q.empty())
-    {
-        x = q.front().first;
-        y = q.front().second;
-        q.pop();
-
-        for (int i = 0; i < 4; ++i)
-        {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
-
-            if (!InRange(nx, ny) || is_visited[nx][ny] != -1 || can_visit[nx][ny] == false)
-                continue;
-
-            q.push({ nx, ny });
-            is_visited[nx][ny] = is_visited[x][y] + 1;
-        }
-    }
-}
-
-int main()
-{
-    Input();
-    BFS();
-
-    cout << is_visited[Fr][Fc];
-
+    cout << is_visited[Fr][Fc] -1;
     return 0;
 }
