@@ -1,62 +1,64 @@
 #include <iostream>
-#include <algorithm>
 #include <queue>
+#define MAX_POINT 100000
 
 using namespace std;
 
 int N, K;
-int is_visited[100001];
+int dp[100001];
+int dx[3] = { -1, 1, 2 };
 
 void bfs()
 {
     queue<int> q;
     q.push(N);
-    is_visited[N] = 1;
+    dp[N] = 0;
 
-    int curr;
     while (!q.empty())
     {
-        curr = q.front();
+        int curr_pos = q.front();
         q.pop();
-        int time = is_visited[curr];
 
-        if (curr == K)
+        if (curr_pos == K)
+            return;
+
+        int curr_time = dp[curr_pos];
+
+        for (int i = 0; i < 3; ++i)
         {
-            break;
-        }
+            int nx = curr_pos;
+            if (i == 2)
+            {
+                nx *= dx[i];
+            }
+            else
+            {
+                nx += dx[i];
+            }
 
-        if ((curr-1) >= 0 && !is_visited[curr - 1])
-        {
-            is_visited[curr - 1] = time + 1;
-            q.push(curr - 1);
-        }
+            if (nx < 0 || nx > MAX_POINT)
+            {
+                continue;
+            }
 
-        if ((curr + 1) <= 100000 && !is_visited[curr + 1])
-        {
-            is_visited[curr + 1] = time + 1;
-            q.push(curr + 1);
-        }
+            if (dp[nx] != 0)
+            {
+                continue;
+            }
 
-        if ((curr*2) <= 100000 && !is_visited[curr * 2])
-        {
-            is_visited[curr * 2] = time + 1;
-            q.push(curr * 2);
+            dp[nx] = curr_time + 1;
+            q.push(nx);
         }
-
     }
 }
-
 int main()
 {
     ios_base::sync_with_stdio(false);
     cin.tie(0); cout.tie(0);
-
     cin >> N >> K;
 
-    fill_n(is_visited, 100001, 0);
     bfs();
-
-    cout << is_visited[K] - 1;
+    cout << dp[K];
 
     return 0;
 }
