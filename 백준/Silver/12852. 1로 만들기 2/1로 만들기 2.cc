@@ -1,9 +1,12 @@
 #include <iostream>
-#define INF 0x7fffffff
+#include <algorithm>
+#include <vector>
+
 using namespace std;
 
 int N;
-int dp[1000001][2];
+int dp[1000001];
+int idx[1000001];
 
 int main()
 {
@@ -11,48 +14,42 @@ int main()
     cin.tie(0); cout.tie(0);
 
     cin >> N;
-    dp[1][0] = 0;
-    dp[1][1] = 0;
-    
+
+    dp[1] = 0;
+
     for (int i = 2; i <= N; ++i)
     {
-        int temp = INF;
-        int pre_num = 0;
-
-        if (i % 3 == 0)
-        {
-            temp = dp[i / 3][0] + 1;
-            pre_num = i / 3;
-        }
+        dp[i] = dp[i - 1];
+        idx[i] = i - 1;
 
         if (i % 2 == 0)
         {
-            if (temp > dp[i / 2][0])
+            if (dp[i] > dp[i / 2])
             {
-                temp = dp[i / 2][0] + 1;
-                pre_num = i / 2;
+                dp[i] = dp[i / 2];
+                idx[i] = i / 2;
             }
         }
 
-        if (temp > dp[i - 1][0])
+        if (i % 3 == 0)
         {
-            temp = dp[i - 1][0] + 1;
-            pre_num = i - 1;
+            if (dp[i] > dp[i / 3])
+            {
+                dp[i] = dp[i / 3];
+                idx[i] = i / 3;
+            }
         }
 
-        dp[i][0] = temp;
-        dp[i][1] = pre_num;
+        dp[i] += 1;
     }
 
-    cout << dp[N][0] << "\n";
-    cout << N << " ";
 
-
-    int num = dp[N][1];
-    while (num >= 1)
+    cout << dp[N] <<"\n";
+    int index = N;
+    while (index != 0)
     {
-        cout << num << " ";
-        num = dp[num][1];
+        cout << index << " ";
+        index = idx[index];
     }
     return 0;
 }
