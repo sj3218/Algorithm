@@ -1,5 +1,7 @@
 #include <iostream>
 #include <algorithm>
+#include <vector>
+
 using namespace std;
 
 int N;
@@ -12,41 +14,40 @@ int main()
     cin.tie(0); cout.tie(0);
 
     cin >> N;
-    for (int i = 0; i < N; ++i)
+    if (N == 1)
     {
-        for (int j = 0; j < i + 1; ++j)
-        {
-            cin >> arr[i][j];
-        }
+        cin >> N;
+        cout << N;
+        return 0;
     }
 
-    dp[0][0] = arr[0][0];
-    int ans = dp[0][0];
-
-    for (int i = 1; i < N; ++i)
+    int answer = 0;
+    for (int i = 1; i <= N; ++i)
     {
-        for (int j = 0; j < i + 1; ++j)
+        for (int j = 1; j <= i; ++j)
         {
-            int left = 0;
-            int right = 0;
-            if (j == 0)
+            cin >> arr[i][j];
+            dp[i][j] = arr[i][j];
+            if (i == 1)
+                continue;
+
+            if (j == 1)
             {
-                right = dp[i - 1][j];
+                dp[i][j] += dp[i - 1][j];
             }
             else if (j == i)
             {
-                left = dp[i - 1][j - 1];
+                dp[i][j] += dp[i - 1][j - 1];
             }
             else
             {
-                left = dp[i - 1][j - 1];
-                right = dp[i - 1][j];
+                dp[i][j] += max(dp[i - 1][j], dp[i - 1][j-1]);
             }
 
-            dp[i][j] = max(right, left) + arr[i][j];
-            ans = max(ans, dp[i][j]);
+            answer = max(answer, dp[i][j]);
         }
     }
-    cout << ans;
+
+    cout << answer;
     return 0;
 }
