@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <vector>
 
 using namespace std;
 
@@ -11,28 +12,25 @@ int main()
 {
     ios_base::sync_with_stdio(false);
     cin.tie(0); cout.tie(0);
-    
+
     cin >> N;
-    
-    fill_n(dp, 1001, 1);
-    for(int i = 0; i< N; ++i)
+    for (int i = 1; i <= N; ++i)
     {
         cin >> arr[i];
     }
-    
-    int val;
-    for(int i = 0; i< N; ++i)
+
+    for (int i = 2; i <= N; ++i)
     {
-        val = arr[i];
-        for(int j = 0; j<= i; ++j)
+        int val = arr[i];
+        for (int j = 1; j < i; ++j)
         {
-            if(val > arr[j])
+            if (val > arr[j])
             {
                 dp[i] = max(dp[i], dp[j] + 1);
             }
         }
     }
-    
-    cout << *max_element(dp, dp + N);
+
+    cout << *max_element(dp+1, dp + N+1)+1;
     return 0;
 }
