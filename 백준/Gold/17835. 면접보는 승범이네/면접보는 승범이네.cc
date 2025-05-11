@@ -2,60 +2,78 @@
 #include <algorithm>
 #include <queue>
 #include <vector>
-#include <tuple>
 
-typedef long long ll;
+#define INF 0X7FFFFFFFFFFFFFFF
+#define MAX_CITY 100001
+
 using namespace std;
 
-const int MX = 100'002;
-const ll INF = 0x7f7f7f7f7f7f;
+int N, M, K;
+int u, v, k;
+long long c;
 
-int n, m, k;
-ll d[MX];
-vector<pair<ll, int>> adj[MX];
-priority_queue< pair<ll, int>,
-    vector<pair<ll, int>>,
-    greater<pair<ll, int>> > pq;
+vector<vector<pair<int,long long>>> city(MAX_CITY);
+long long dist[MAX_CITY];
+priority_queue<pair<long long, int>, vector<pair<long long, int>>, greater<pair<long long, int>>> pq;
 
-void solve() {
-    while (!pq.empty()) {
-        int u, v;
-        ll w, dw;
-        tie(w, u) = pq.top(); pq.pop();
-        if (d[u] != w) continue;
-        for (auto nxt : adj[u]) {
-            tie(dw, v) = nxt;
-            dw += w;
-            if (dw >= d[v]) continue;
-            d[v] = dw;
-            pq.push({ dw, v });
+void dijkstra()
+{
+    int curr, nx_city;
+    long long curr_w, nx_w;
+
+    while (!pq.empty())
+    {
+        curr_w = pq.top().first;
+        curr = pq.top().second;
+        pq.pop();
+
+        if (dist[curr] < curr_w)
+            continue;
+
+        for (pair<int, long long> next : city[curr])
+        {
+            nx_city = next.first;
+            nx_w = next.second;
+
+            nx_w += dist[curr];
+            if (dist[nx_city] <= nx_w)
+                continue;
+
+            dist[nx_city] = nx_w;
+            pq.push({ nx_w, nx_city });
         }
     }
 }
 
-int main(void) {
-    ios::sync_with_stdio(0);
-    cin.tie(0);
+int main()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0); cout.tie(0);
 
-    cin >> n >> m >> k;
-    fill(d + 1, d + n + 1, INF);
+    fill_n(dist, MAX_CITY, INF);
 
-    int u, v;
-    ll w;
-    while (m--) {
-        cin >> u >> v >> w;
-        adj[v].push_back({ w, u });
+    cin >> N >> M >> K;
+    for (int i = 0; i < M; ++i)
+    {
+        cin >> u >> v >> c;
+        city[v].push_back({ u,c });
     }
 
-    int ct;
-    while (k--) {
-        cin >> ct;
-        d[ct] = 0;
-        pq.push({ d[ct], ct });
+    for (int i = 0; i < K; ++i)
+    {
+        cin >> k;
+        dist[k] = 0;
+        pq.push({ 0, k });
     }
 
-    solve();
+    long long max_dist = 0;
+    int max_idx = 0;
 
-    int cidx = max_element(d + 1, d + n + 1) - d;
-    cout << cidx << '\n' << d[cidx];
+    dijkstra();
+
+    max_idx = max_element(dist + 1, dist + N + 1) - dist;
+    max_dist = dist[max_idx];
+
+    cout << max_idx << "\n" << max_dist;
+    return 0;
 }
