@@ -18,20 +18,28 @@ int CalculateDistance(int x1, int x2, int y1, int y2)
 
 int Find(int x)
 {
-    if (parent[x] == x)
+    if(parent[x] < 0)
         return x;
     return parent[x] = Find(parent[x]);
 }
 
-void Union(int u, int v)
+bool Union(int u, int v)
 {
     u = Find(u);
     v = Find(v);
 
-    if (u > v)
-        parent[u] = v;
-    else if (u < v)
+    if (u == v)
+        return false;
+
+    if (parent[u] == parent[v])
+        --parent[u];
+
+    if (parent[u] < parent[v])
         parent[v] = u;
+    else
+        parent[u] = v;
+
+    return true;
 }
 
 int main()
@@ -40,14 +48,13 @@ int main()
     cin.tie(0); cout.tie(0);
 
     cin >> N >> C;
-    //fill_n(parent, 2001, -1);
+    fill_n(parent, 2001, -1);
 
     int x, y;
     for (int i = 0; i < N; ++i)
     {
         cin >> x >> y;
         fields.push_back({ x, y });
-        parent[i] = i;
     }
 
     int x2, y2;
@@ -68,7 +75,7 @@ int main()
         }
     }
 
-    cnt_edges = (int)edges.size();
+    cnt_edges = edges.size();
     sort(edges.begin(), edges.end());
 
     int u, v, cost;
@@ -81,13 +88,8 @@ int main()
         u = edges[i].second.first;
         v = edges[i].second.second;
 
-        /*if (!Union(u, v))
-            continue;*/
-
-        if (Find(u) == Find(v))
+        if (!Union(u, v))
             continue;
-
-        Union(u, v);
 
         answer += cost;
         ++cnt;
