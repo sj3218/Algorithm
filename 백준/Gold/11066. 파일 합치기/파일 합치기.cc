@@ -31,25 +31,24 @@ void Input()
             sum[i][j] = sum[i][j - 1] + values[j];
         }
     }
-
 }
 
 void solution()
 {
+    int j = 0;
     for (int len = 1; len < K; ++len)
     {
-        for (int i = 1; i + len <= K; ++i)
+        for (int i = 1; i+len <= K; ++i)
         {
-            int j = i + len;
-
+            j = i + len;
             for (int k = i; k < j; ++k)
             {
-                dp[i][j] = min(dp[i][j], dp[i][k] + dp[k + 1][j] + sum[i][j]);
+                dp[i][j] = min(dp[i][j], dp[i][k] + dp[k + 1][j]);
             }
+            dp[i][j] += sum[i][j];
         }
     }
 }
-
 
 int main()
 {
