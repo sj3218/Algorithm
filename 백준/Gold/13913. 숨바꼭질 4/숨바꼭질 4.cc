@@ -1,38 +1,53 @@
 #include <iostream>
 #include <algorithm>
+#include <string>
 #include <queue>
+#include <tuple>
 #include <vector>
 
 using namespace std;
+#define INF 0X7FFFFFFF
 
 int N, K;
-int dist[100001];
-int previous_num[100001];
+pair<int, int> is_visited[100001];//time, parent
+
+bool OutOfBound(int pos)
+{
+    if (pos < 0 || pos > 100000)
+        return true;
+    return false;
+}
 
 void bfs()
 {
     queue<int> q;
     q.push(N);
-    dist[N] = 0;
-    previous_num[N] = N;
+    for (int i = 0; i <= 100000; ++i)
+    {
+        is_visited[i] = { INF, -1 };
+    }
+    is_visited[N] = {0, -1};
 
-    int curr;
+    int curr_pos;
+    int curr_time;
+    int next_pos;
     while (!q.empty())
     {
-        curr = q.front();
+        curr_pos = q.front();
         q.pop();
+        curr_time = is_visited[curr_pos].first;
+        if (curr_pos == K)
+            break;
 
-        for (int nx : { curr - 1, curr + 1, curr * 2 })
+        for (int next_pos : {curr_pos + 1, curr_pos - 1, curr_pos * 2})
         {
-            if (nx < 0 || nx > 100000)
+            if (OutOfBound(next_pos))
                 continue;
 
-            if (dist[nx] == -1 || dist[nx] > dist[curr])
+            if (is_visited[next_pos].first > curr_time + 1)
             {
-                dist[nx] = dist[curr] + 1;
-                previous_num[nx] = curr;
-
-                q.push(nx);
+                is_visited[next_pos] = { curr_time + 1, curr_pos };
+                q.push(next_pos);
             }
         }
     }
@@ -44,26 +59,22 @@ int main()
     cin.tie(0); cout.tie(0);
 
     cin >> N >> K;
-    fill_n(dist, 100001, -1);
-    fill_n(previous_num, 100001, -1);
-
     bfs();
 
-    cout << dist[K] << "\n";
+    vector<int> parent;
+    int curr_pos = K;
 
-    vector<int> order;
-    int curr = K;
-    while (curr != N)
+    while (curr_pos != -1)
     {
-        order.push_back(curr);
-        curr = previous_num[curr];
+        parent.push_back(curr_pos);
+        curr_pos = is_visited[curr_pos].second;
     }
 
-    cout << N << " ";
-    int size = order.size();
+    cout << is_visited[K].first <<"\n";
+    int size = parent.size();
     for (int i = size - 1; i >= 0; --i)
     {
-        cout << order[i] << " ";
+        cout << parent[i] << " ";
     }
 
     return 0;
