@@ -7,29 +7,29 @@
 
 #define INF 0X7FFFFFFF
 using namespace std;
+
 int N, K;
+bool is_visited[11][1000001];
 int answer = -1;
-int is_visited[11][1000001];
 
 void bfs()
 {
     queue<pair<int, string>> q;
-    q.push({ 0, to_string(N)});
+    q.push({ 0, to_string(N) });
     is_visited[0][N] = true;
-
-    int depth;
-    string num;
-    string next_num;
     int size = to_string(N).size();
 
+    int curr_cnt;
+    string curr_num;
+    string next_num;
     while (!q.empty())
     {
-        tie(depth, num) = q.front();
+        tie(curr_cnt, curr_num) = q.front();
         q.pop();
 
-        if (depth == K)
+        if (curr_cnt == K)
         {
-            answer = max(answer, stoi(num));
+            answer = max(answer, stoi(curr_num));
             continue;
         }
 
@@ -37,19 +37,18 @@ void bfs()
         {
             for (int j = i + 1; j < size; ++j)
             {
-                next_num = num;
+                next_num = curr_num;
                 swap(next_num[i], next_num[j]);
+
                 if (next_num[0] == '0')
                     continue;
+                if (is_visited[curr_cnt + 1][stoi(next_num)] == true)
+                    continue;
 
-                if (!is_visited[depth + 1][stoi(next_num)])
-                {
-                    is_visited[depth + 1][stoi(next_num)] = true;
-                    q.push({ depth + 1, next_num });
-                }
+                is_visited[curr_cnt + 1][stoi(next_num)] = true;
+                q.push({ curr_cnt + 1, next_num });
             }
         }
-
     }
 }
 
@@ -59,8 +58,8 @@ int main()
     cin.tie(0); cout.tie(0);
 
     cin >> N >> K;
-    
     bfs();
     cout << answer;
+
     return 0;
 }
