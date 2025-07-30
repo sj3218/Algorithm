@@ -1,51 +1,57 @@
 #include <iostream>
 #include <algorithm>
-#include <vector>
+#include <string>
 #include <queue>
 #include <tuple>
+#include <vector>
 
+#define INF 0X7FFFFFFF
 using namespace std;
 
-int cnt;
-
-priority_queue<int, vector<int>, greater<>> less_pq;
-priority_queue<int> greater_pq;
-int nums[100001];
+int N;
 
 int main()
 {
     ios_base::sync_with_stdio(false);
     cin.tie(0); cout.tie(0);
-    
-    int latest_pop_num = -10001;
-    
-    cin >> cnt;
-    int greater_size, less_size;
-    for (int i = 0; i < cnt; ++i)
-    {
-        cin >> nums[i];
-        greater_size = greater_pq.size();
-        less_size = less_pq.size();
-        
-        if (less_size >= greater_size)
-            greater_pq.push(nums[i]);
-        else
-            less_pq.push(nums[i]);
 
-        if (less_pq.size() != 0)
+    priority_queue<int> greater_q;
+    priority_queue<int, vector<int>, greater<int>> less_q;
+    
+    cin >> N;
+    int num;
+    int greater_size, less_size;
+    for (int i = 0; i < N; ++i)
+    {
+        cin >> num;
+
+        greater_size = greater_q.size();
+        less_size = less_q.size();
+
+        if (greater_size <= less_size)
         {
-            if (greater_pq.top() > less_pq.top())
+            greater_q.push(num);
+        }
+        else
+        {
+            less_q.push(num);
+        }
+
+        if (!less_q.empty())
+        {
+            int g = greater_q.top();
+            int l = less_q.top();
+            if (g > l)
             {
-                int g = greater_pq.top();
-                int l = less_pq.top();
-                greater_pq.pop();
-                less_pq.pop();
-                greater_pq.push(l);
-                less_pq.push(g);
+                greater_q.pop();
+                less_q.pop();
+                greater_q.push(l);
+                less_q.push(g);
             }
         }
-        
-        cout << greater_pq.top() <<"\n";
+
+        cout << greater_q.top()<<"\n";
     }
+
     return 0;
 }
