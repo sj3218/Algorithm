@@ -1,53 +1,110 @@
 #include <iostream>
 #include <algorithm>
-#include <vector>
+#include <string>
 #include <queue>
-#include <set>
+#include <tuple>
+#include <vector>
 
+#define INF 0X7FFFFFFF
 using namespace std;
+
+int test_case;
+int cnt;
+bool is_deleted[1000001];
 
 int main()
 {
     ios_base::sync_with_stdio(false);
     cin.tie(0); cout.tie(0);
-    int T, k;
-    char c;
-    int n;
 
-    cin >> T;
-
-    while (T--)
+    cin >> test_case;
+    while (test_case--)
     {
-        cin >> k;
-        multiset<int> ms;
+        cin >> cnt;
+        char oper;
+        int num;
+        fill_n(is_deleted, 1000001, false);
+        priority_queue<pair<int, int>> greater_q;
+        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> less_q;
 
-        for (int i = 0; i < k; ++i)
+        for (int i = 0; i < cnt; ++i)
         {
-            cin >> c >> n;
+            cin >> oper >> num;
 
-            if (c == 'D')
+            if (oper == 'I')
             {
-                if (ms.empty())
-                    continue;
-                if (n == 1)
-                {
-                    ms.erase(prev(ms.end()));
-                }
-                else
-                    ms.erase(ms.begin());
+                greater_q.push({ num, i });
+                less_q.push({ num,i });
             }
             else
             {
-                ms.insert(n);
+                if (num < 0)
+                {
+                    //delete less one
+                    int value, idx;
+                    while (!less_q.empty())
+                    {
+                        tie(value, idx) = less_q.top();
+                        less_q.pop();
+                        if (is_deleted[idx])
+                            continue;
+
+                        is_deleted[idx] = true;
+
+                        break;
+                    }
+                }
+                else
+                {
+                    //delete greater one
+                    int value, idx;
+                    while (!greater_q.empty())
+                    {
+                        tie(value, idx) = greater_q.top();
+                        greater_q.pop();
+                        if(is_deleted[idx])
+                            continue;
+
+                        is_deleted[idx] = true;
+                        break;
+                    }
+                }
             }
+
+
         }
 
-        if (ms.empty())
+        int idx;
+        int min_value, max_value;
+        bool is_empty = true;
+
+        while (!less_q.empty())
+        {
+            tie(num, idx) = less_q.top();
+            less_q.pop();
+            if (is_deleted[idx])
+                continue;
+
+            min_value = num;
+            is_empty = false;
+            break;
+        }
+        
+        while (!greater_q.empty())
+        {
+            tie(num, idx) = greater_q.top();
+            greater_q.pop();
+            if (is_deleted[idx])
+                continue;
+            max_value = num;
+            break;
+        }
+
+        if (is_empty)
             cout << "EMPTY\n";
         else
-            cout << *prev(ms.end()) << " " << *ms.begin() << "\n";
+            cout << max_value << " " << min_value << "\n";
+
     }
-
-
     return 0;
 }
