@@ -24,23 +24,24 @@ int main()
     for (int i = 1; i <= T; ++i)
     {
         cin >> tree_num;
-        if (tree_num == 1)
-            dp[i][0][1] = dp[i - 1][0][1] + 1;
 
-        for (int j = 1; j <= i && j<= W; ++j)
+        if(tree_num == 1)
+            dp[i][0][1] = dp[i-1][0][1] + 1;
+
+        for (int j = 1; j <= i; ++j)
         {
-            //not move
+            if (j > W)
+                break;
+
             if (tree_num == 1)
             {
-                dp[i][j][1] = max(dp[i - 1][j - 1][2], dp[i - 1][j][1]) + 1;
-             
-                dp[i][j][2] = max(dp[i - 1][j][2], dp[i - 1][j - 1][1]);
+                dp[i][j][1] = max(dp[i - 1][j][1], dp[i - 1][j - 1][2]) + 1;
+                dp[i][j][2] = max(dp[i - 1][j - 1][1], dp[i - 1][j][2]);
             }
             else
             {
+                dp[i][j][1] = max(dp[i - 1][j - 1][2], dp[i - 1][j][1]);
                 dp[i][j][2] = max(dp[i - 1][j][2], dp[i - 1][j - 1][1]) + 1;
-
-                dp[i][j][1] = max(dp[i - 1][j][1], dp[i - 1][j - 1][2]);
             }
         }
     }
