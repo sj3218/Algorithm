@@ -9,7 +9,6 @@ using namespace std;
 #define INF 0X7FFFFFFF
 
 int V, E;
-vector<vector<pair<int, int>>> graph(401);
 int cost[401][401];
 bool is_visited[401];
 int answer = INF;
@@ -27,7 +26,6 @@ int main()
     for (int i = 0; i < E; ++i)
     {
         cin >> a >> b >> c;
-        graph[a].push_back({ b,c });
         cost[a][b] = c;
     }
 
