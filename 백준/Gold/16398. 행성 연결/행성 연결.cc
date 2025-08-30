@@ -9,9 +9,8 @@ using namespace std;
 #define INF 0X7FFFFFFF
 
 int N;
-int cost[1001][1001];
-vector<tuple<int, int, int>> edges;
-int parent[1001];
+int costs[1001][1001];
+bool is_visited[1001];
 
 void Input()
 {
@@ -20,47 +19,10 @@ void Input()
     {
         for (int j = 1; j <= N; ++j)
         {
-            cin >> cost[i][j];
-        }
-    }
-
-    for (int i = 1; i <= N; ++i)
-    {
-        for (int j = i + 1; j <= N; ++j)
-        {
-            edges.push_back({ cost[i][j], i, j });
+            cin >> costs[i][j];
         }
     }
 }
-
-int find_(int x)
-{
-    while (parent[x] > 0)
-    {
-        x = parent[x];
-    }
-    return x;
-}
-
-bool union_(int u, int v)
-{
-    u = find_(u);
-    v = find_(v);
-
-    if (u == v)
-        return false;
-
-    if (parent[u] == parent[v])
-        --parent[u];
-
-    if (parent[u] < parent[v])
-        parent[v] = u;
-    else
-        parent[u] = v;
-
-    return true;
-}
-
 
 int main()
 {
@@ -68,25 +30,37 @@ int main()
     cin.tie(0); cout.tie(0);
 
     Input();
-    fill_n(parent, 1001, -1);
-    sort(edges.begin(), edges.end());
+    fill_n(is_visited, 1001, false);
 
     int cnt = 0;
     long long answer = 0;
-    int edge_size = edges.size();
     int u, v, cost;
-
-    for (int i = 0; i < edge_size; ++i)
+    priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, greater<tuple<int, int, int>>> pq;
+    for (int i = 2; i <= N; ++i)
     {
-        tie(cost, u, v) = edges[i];
+        pq.push({ costs[1][i], 1, i });
+    }
+    is_visited[1] = true;
 
-        if (!union_(u, v))
+    while (cnt < N - 1)
+    {
+        tie(cost, u, v) = pq.top(); pq.pop();
+
+        if (is_visited[v])
             continue;
 
-        answer += cost;
         ++cnt;
-        if (cnt == N - 1)
-            break;
+        is_visited[v] = true;
+        answer += cost;
+
+        for (int i = 1; i <= N; ++i)
+        {
+            if (i == v)
+                continue;
+            if (is_visited[i])
+                continue;
+            pq.push({ costs[v][i], v, i });
+        }
     }
 
     cout << answer;
