@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <algorithm>
 #include <queue>
@@ -6,55 +5,71 @@
 using namespace std;
 
 int N, K;
-int dist[100001];
-int cnt[100001];
+int dp[100001];
+const int INF = 0XFFFFFFF;
 
+bool CanDo(int value)
+{
+    if (value < 0 || value > 100000)
+        return false;
+    return true;
+}
 void bfs()
 {
+    fill_n(dp, 100001, INF);
     queue<int> q;
     q.push(N);
-    dist[N] = 0;
-    cnt[N] = 1;
-
-    int curr;
+    dp[N] = 0;
+    
+    int curr_pos;
+    int curr_time;
+    int value[3] = { 0,0,0 };
     while (!q.empty())
     {
-        curr = q.front();
-        q.pop();
-
-        for (int nx : { curr - 1, curr + 1, curr * 2 })
+        curr_pos = q.front(); q.pop();
+        if (curr_pos == K)
         {
-            if (nx < 0 || nx > 100000)
-                continue;
+            cout << dp[curr_pos];
+            return;
+        }
+        curr_time = dp[curr_pos];
 
-            if (dist[nx] == -1 || dist[nx] > dist[curr])
+        value[0] = curr_pos - 1;
+        value[1] = curr_pos + 1;
+        value[2] = curr_pos * 2;
+
+        for (int i = 0; i < 3; ++i)
+        {
+            if (!CanDo(value[i]))
             {
-                if (nx != curr * 2)
-                {
-                    dist[nx] = dist[curr] + 1;
-                }
-                else
-                {
-                    dist[nx] = dist[curr];
-                }
-                
-                q.push(nx);
+                continue;
             }
+
+            if (i != 2)
+            {
+                if (dp[value[i]] != INF && dp[value[i]] <= curr_time+1)
+                    continue;
+                dp[value[i]] = curr_time+1;
+            }
+            else
+            {
+                if (dp[value[i]] != INF && dp[value[i]] <= curr_time)
+                    continue;
+                dp[value[i]] = curr_time;
+            }
+
+            q.push(value[i]);
         }
     }
-}
 
+}
 int main()
 {
     ios_base::sync_with_stdio(false);
     cin.tie(0); cout.tie(0);
-
+    
     cin >> N >> K;
-    fill_n(dist, 100001, -1);
-
     bfs();
-
-    cout << dist[K];
 
     return 0;
 }
