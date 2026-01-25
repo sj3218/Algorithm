@@ -1,103 +1,114 @@
 #include <iostream>
-#include <queue>
 #include <algorithm>
+#include <queue>
+#include <tuple>
+#include <stack>
 
 using namespace std;
 
+const int UNRIPE = -1;
+const int ALL_RPIE = 0;
 
 int N, M;
-int is_visited[1001][1001];
-int grid[1001][1001];
-queue<pair<int, int>> q;
-int dx[4] = { 0,0,1,-1 };
-int dy[4] = { 1,-1,0,0 };
+int board[1001][1001];
+int is_visitied[1001][1001];
+
+int cnt_not_ripe = 0;
+queue<pair<int, int>> pos_ripe;
+
+int dr[4] = { 0,0,1,-1 };
+int dc[4] = { 1,-1,0,0 };
+
+bool OutofBound(int r, int c)
+{
+    if (r <= 0 || c <= 0 || r > N || c > M)
+    {
+        return true;
+    }
+    return false;
+}
 
 void Input()
 {
+    fill_n(&is_visitied[0][0], 1001 * 1001, -1);
+
     cin >> M >> N;
-    for (int i = 1; i <= N; ++i)
+
+    for (int r = 1; r <= N; ++r)
     {
-        for (int j = 1; j <= M; ++j)
+        for (int c = 1; c <= M; ++c)
         {
-            cin >> grid[i][j];
-            if (grid[i][j] == 1)
+            cin >> board[r][c];
+            if (board[r][c] == 0)
+                ++cnt_not_ripe;
+            else if (board[r][c] == 1)
             {
-                q.push({ i,j });
-                is_visited[i][j] = 1;
+                pos_ripe.push({ r,c });
+                is_visitied[r][c] = 0;
             }
-            else
-                is_visited[i][j] = 0;
         }
     }
 }
-bool InRange(int x, int y)
-{
-    if (x <= 0 || y <= 0 || x > N || y > M)
-        return false;
-    return true;
-}
 
-void BFS()
+int GetRipeningDays(int& cnt_ripe)
 {
-    int x, y;
+    int cr, cc, nr, nc;
+    int max_day = -1;
+    int curr_day = 0;
 
-    while (!q.empty())
+    while (!pos_ripe.empty())
     {
-        x = q.front().first;
-        y = q.front().second;
-        q.pop();
+        tie(cr, cc) = pos_ripe.front();
+        pos_ripe.pop();
+        curr_day = is_visitied[cr][cc];
+        
+        max_day = max(max_day, curr_day);
+        if (board[cr][cc] == 0)
+            ++cnt_ripe;
 
         for (int i = 0; i < 4; ++i)
         {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
+            nr = cr + dr[i];
+            nc = cc + dc[i];
 
-            if (InRange(nx, ny))
+            if (OutofBound(nr, nc) || (is_visitied[nr][nc] != -1) || (board[nr][nc] != 0))
             {
-                if (grid[nx][ny] >= 0 && is_visited[nx][ny] == 0)
-                {
-                    is_visited[nx][ny] = is_visited[x][y] + 1;
-
-                    q.push({ nx, ny });
-                }
+                continue;
             }
+
+            is_visitied[nr][nc] = curr_day + 1;
+            pos_ripe.push({ nr,nc });
         }
     }
-}
 
-int Count()
-{
-    int max = 0;
-    int tmp;
-
-    for (int i = 1; i <= N; ++i)
-    {
-        for (int j = 1; j <= M; ++j)
-        {
-            tmp = is_visited[i][j];
-            
-            if (grid[i][j] >= 0)
-            {
-                if (tmp == 0)
-                {
-                    return -1;
-                }
-                
-                if (tmp > max)
-                {
-                    max = tmp;
-                }
-            }
-        }
-    }
-    return max - 1;
+    return max_day;
 }
 
 int main()
 {
+    ios_base::sync_with_stdio(false);
+    cin.tie(0); cout.tie(0);
+
     Input();
-    BFS();
-    cout << Count();
+
+    if (cnt_not_ripe == 0)
+    {
+        //all tomatoes are ripen at the first
+        cout << ALL_RPIE;
+        return 0;
+    }
+    
+    int cnt_ripe = 0;
+    int max_day = GetRipeningDays(cnt_ripe);
+    if (cnt_ripe != cnt_not_ripe)
+    {
+        //all tomatoes are not ripen
+        cout << UNRIPE;
+    }
+    else
+    {
+        cout << max_day;
+    }
 
     return 0;
 }
