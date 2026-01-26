@@ -1,119 +1,118 @@
 #include <iostream>
-#include <queue>
 #include <algorithm>
+#include <queue>
+#include <tuple>
+#include <stack>
 
 using namespace std;
 
-int R, C;
-char map[1001][1001];
-int pos_J_r, pos_J_c;
-int is_visited[1001][1001];
-int fire_visited[1001][1001];
-queue<pair<int, int>> q_fire;
+const char WALL = '#';
+const char EMPTY = '.';
+const char FIRE = 'F';
 
-int dx[4] = { 0,0,1,-1 };
-int dy[4] = { 1,-1, 0, 0 };
+int dr[4] = { 0,0,1,-1 };
+int dc[4] = { 1,-1,0,0 };
+
+int R, C;
+char board[1001][1001];
+
+queue<pair<int, int>> q_fire_pos;
+queue<pair<int, int>> q_jihoon_pos;
+int fire_time[1001][1001];
+int is_visited[1001][1001];
+
+bool OutofBound(int r, int c)
+{
+    if (r <= 0 || c <= 0 || r > R || c > C)
+    {
+        return true;
+    }
+    return false;
+}
 
 void Input()
 {
-    fill_n(is_visited[0], 1001 * 1001, -1);
-    fill_n(fire_visited[0], 1001 * 1001, -1);
-
     cin >> R >> C;
-    for (int i = 0; i < R; ++i)
+
+    for (int r = 1; r <= R; ++r)
     {
-        for (int j = 0; j < C; ++j)
+        for (int c = 1; c <= C; ++c)
         {
-            cin >> map[i][j];
-            if (map[i][j] == 'J')
+            cin >> board[r][c];
+            if (board[r][c] == 'J')
             {
-                pos_J_r = i;
-                pos_J_c = j;
+                q_jihoon_pos.push({ r,c });
+                is_visited[r][c] = 1;
             }
-            else if (map[i][j] == 'F')
+            else if (board[r][c] == FIRE)
             {
-                q_fire.push({ i, j });
-                fire_visited[i][j] = 0;
+                q_fire_pos.push({ r,c });
+                fire_time[r][c] = 1;
             }
         }
     }
 }
 
-bool IsValid(int x, int y)
+void ProcessFire()
 {
-    if (x < 0 || y < 0 || x >= R || y >= C)
-        return false;
-    return true;
-}
+    int r, c;
+    int nr, nc;
+    int cnt;
 
-void FireBFS()
-{
-    while (!q_fire.empty())
+    while (!q_fire_pos.empty())
     {
-        int x = q_fire.front().first;
-        int y = q_fire.front().second;
-        q_fire.pop();
-
-        int curr_fire = fire_visited[x][y];
+        tie(r, c) = q_fire_pos.front();
+        q_fire_pos.pop();
+        cnt = fire_time[r][c];
 
         for (int i = 0; i < 4; ++i)
         {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
+            nr = r + dr[i];
+            nc = c + dc[i];
 
-            if (!IsValid(nx, ny) || fire_visited[nx][ny] != -1)
-                continue;
+            if (OutofBound(nr, nc)) continue;
+            if (board[nr][nc] == WALL) continue;
+            if (fire_time[nr][nc] != 0) continue;
 
-            if (map[nx][ny] == '#')
-                continue;
-
-            q_fire.push({ nx, ny });
-            fire_visited[nx][ny] = curr_fire + 1;
+            fire_time[nr][nc] = cnt + 1;
+            q_fire_pos.push({ nr,nc });
         }
     }
 }
 
-int bfs()
+bool CanEscape(int& distance)
 {
-    queue<pair<int, int>> q;
-    q.push({ pos_J_r, pos_J_c });
-    is_visited[pos_J_r][pos_J_c] = 0;
+    int r, c;
+    int nr, nc;
+    int cnt;
 
-    while (!q.empty())
+    while (!q_jihoon_pos.empty())
     {
-        int x = q.front().first;
-        int y = q.front().second;
-        int curr_time = is_visited[x][y];
-        q.pop();
-
-        if (x == 0 || x == R - 1 || y == 0 || y == C - 1)
-        {
-            return is_visited[x][y] + 1;
-        }
+        tie(r, c) = q_jihoon_pos.front();
+        q_jihoon_pos.pop();
+        cnt = is_visited[r][c];
 
         for (int i = 0; i < 4; ++i)
         {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
+            nr = r + dr[i];
+            nc = c + dc[i];
 
-            if (!IsValid(nx, ny) || is_visited[nx][ny] != -1)
+            if (OutofBound(nr, nc))
             {
-                continue;
+                distance = cnt;
+                return true;
             }
 
-            if (fire_visited[nx][ny] > curr_time + 1 || fire_visited[nx][ny] == -1)
-            {
-                if (map[nx][ny] == '.')
-                {
-                    q.push({ nx, ny });
-                    is_visited[nx][ny] = curr_time + 1;
-                }
-            }
+            if (board[nr][nc] == WALL) continue;
+            if (is_visited[nr][nc] != 0) continue;
+            if (fire_time[nr][nc] != 0 && fire_time[nr][nc] <= cnt + 1) continue;
 
+
+            is_visited[nr][nc] = cnt + 1;
+            q_jihoon_pos.push({ nr,nc });
         }
     }
-
-    return -1;
+    return false;
 }
 
 int main()
@@ -121,13 +120,15 @@ int main()
     ios_base::sync_with_stdio(false);
     cin.tie(0); cout.tie(0);
 
-    Input();
-    FireBFS();
-    int answer = bfs();
+    int distance = 0;
 
-    if (answer == -1)
-        cout << "IMPOSSIBLE";
+    Input();
+    ProcessFire();
+
+    if (CanEscape(distance))
+        cout << distance;
     else
-        cout << answer;
+        cout << "IMPOSSIBLE";
+
     return 0;
 }
