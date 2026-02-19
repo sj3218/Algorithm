@@ -1,81 +1,105 @@
 #include <iostream>
 #include <algorithm>
-#include <string>
 #include <queue>
 #include <tuple>
-#include <vector>
 
 using namespace std;
-#define INF 0X7FFFFFFF
 
-int N, K;
-pair<int, int> is_visited[100001];//time, parent
+const int BOARD_MAX = 100000;
+int N;
+int K;
+pair<int,int> is_visited[100001];//pre_pos, time
+int route[100001];
 
-bool OutOfBound(int pos)
+void Input()
 {
-    if (pos < 0 || pos > 100000)
-        return true;
-    return false;
+	cin >> N >> K;
 }
 
-void bfs()
+bool OutOfRange(int x)
 {
-    queue<int> q;
-    q.push(N);
-    for (int i = 0; i <= 100000; ++i)
-    {
-        is_visited[i] = { INF, -1 };
-    }
-    is_visited[N] = {0, -1};
+	if (x < 0 || x > BOARD_MAX)
+		return true;
 
-    int curr_pos;
-    int curr_time;
-    int next_pos;
-    while (!q.empty())
-    {
-        curr_pos = q.front();
-        q.pop();
-        curr_time = is_visited[curr_pos].first;
-        if (curr_pos == K)
-            break;
+	return false;
+}
 
-        for (int next_pos : {curr_pos + 1, curr_pos - 1, curr_pos * 2})
-        {
-            if (OutOfBound(next_pos))
-                continue;
+void FindFastTime()
+{
+	fill_n(is_visited, 100001, make_pair<int,int>(-1, -1));
+	queue<int> q;
+	is_visited[N] = { -1, 0 };
+	q.push(N);
 
-            if (is_visited[next_pos].first > curr_time + 1)
-            {
-                is_visited[next_pos] = { curr_time + 1, curr_pos };
-                q.push(next_pos);
-            }
-        }
-    }
+	int curr_pos;
+	int curr_time;
+	int next_time;
+	int next_pos;
+	int pre_pos;
+	while (!q.empty())
+	{
+		curr_pos = q.front();
+		q.pop();
+		tie(pre_pos, curr_time) = is_visited[curr_pos];
+
+		if (curr_pos == K)
+			return;
+
+		for (int n_pos : {curr_pos + 1, curr_pos - 1, curr_pos * 2})
+		{
+			if (OutOfRange(n_pos))
+				continue;
+
+			next_time = is_visited[n_pos].second;
+
+			if (next_time != -1 && next_time <= curr_time + 1)
+			{
+				continue;
+			}
+
+			is_visited[n_pos] = { curr_pos, curr_time + 1 };
+			q.push(n_pos);
+		}
+
+		/*
+		next_pos = curr_pos * 2;
+		if (OutOfRange(next_pos))
+			continue;
+
+		next_time = is_visited[next_pos].second;
+		if (next_time != -1 && next_time <= curr_time)
+			continue;
+
+		is_visited[next_pos] = { curr_pos, curr_time };
+		q.push(next_pos);*/
+	}
+}
+
+void BackTrackingRoute()
+{
+	int pos = K;
+	int idx = 0;
+	while (pos != -1)
+	{
+		route[idx++] = pos;
+		pos = is_visited[pos].first;
+	}
+
+	for (idx -= 1; idx >= 0; --idx)
+	{
+		cout << route[idx]<<" ";
+	}
 }
 
 int main()
 {
-    ios_base::sync_with_stdio(false);
-    cin.tie(0); cout.tie(0);
+	ios_base::sync_with_stdio(false);
+	cin.tie(0); cout.tie(0);
 
-    cin >> N >> K;
-    bfs();
+	Input();
+	FindFastTime();
+	cout << is_visited[K].second <<"\n";
+	BackTrackingRoute();
 
-    vector<int> parent;
-    int curr_pos = K;
-
-    while (curr_pos != -1)
-    {
-        parent.push_back(curr_pos);
-        curr_pos = is_visited[curr_pos].second;
-    }
-
-    cout << is_visited[K].first <<"\n";
-    int size = parent.size();
-    for (int i = size - 1; i >= 0; --i)
-    {
-        cout << parent[i] << " ";
-    }
-
-    return 0;
+	return 0;
 }
