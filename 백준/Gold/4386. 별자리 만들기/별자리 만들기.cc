@@ -1,102 +1,95 @@
 #include <iostream>
-#include <algorithm>
-#include <string>
-#include <queue>
-#include <tuple>
-#include <vector>
 #include <cmath>
 #include <iomanip>
+#include <algorithm>
+#include <vector>
+#include <queue>
+#include <tuple>
 
 using namespace std;
-#define INF 0X7FFFFFFF
 
+const int MAX_STARS = 101;
 int star_cnt;
-vector<pair<float, float>> positions;
-vector<tuple<float, int, int>> edges;
-int parent[101];
+pair<float, float> star_pos[MAX_STARS];
+float star_distance[MAX_STARS][MAX_STARS];
+bool is_visited[MAX_STARS];
 
-float distance(int idx_a, int idx_b)
+void Input()
 {
-    float x = positions[idx_a].first - positions[idx_b].first;
-    float y = positions[idx_a].second - positions[idx_b].second;
-    float dist = x * x + y * y;
-    return dist;
+	cin >> star_cnt;
+	float x, y;
+	for (int i = 1; i <= star_cnt; ++i)
+	{
+		cin >> x >> y;
+		star_pos[i] = { x, y };
+	}
 }
 
-int Find(int x)
+float CalculateDistance(int idx_1, int idx_2)
 {
-    while (parent[x] >= 0)
-    {
-        x = parent[x];
-    }
-    return x;
+	int x_1, x_2, y_1, y_2;
+	tie(x_1, y_1) = star_pos[idx_1];
+	tie(x_2, y_2) = star_pos[idx_2];
+	
+	return sqrt(pow((x_1 - x_2), 2) + pow((y_1 - y_2), 2));
 }
 
-bool Union_(int x, int y)
+void Initialize()
 {
-    x = Find(x);
-    y = Find(y);
+	for (int i = 1; i <= star_cnt; ++i)
+	{
+		for (int j = i + 1; j <= star_cnt; ++j)
+		{
+			star_distance[i][j] = CalculateDistance(i, j);
+			star_distance[j][i] = star_distance[i][j];
+		}
+	}
+}
 
-    if (x == y)
-    {
-        return false;
-    }
+float PrimAlgorithm()
+{
+	priority_queue<pair<float, int>, vector<pair<float,int>>, greater<pair<float,int>>> pq;
 
-    if (parent[x] == parent[y])
-        parent[x]--;
-
-    if (parent[x] < parent[y])
-        parent[y] = x;
-    else
-        parent[x] = y;
-
-    return true;
+	pq.push({ 0,1 });
+	
+	float rst = 0;
+	int cnt = 0;
+	float dist;
+	int curr;
+	while (!pq.empty())
+	{
+		tie(dist, curr) = pq.top(); pq.pop();
+		
+		if (is_visited[curr])
+			continue;
+		
+		is_visited[curr] = true;
+		rst += dist;
+		++cnt;
+		
+		if (cnt == star_cnt)
+		{
+			return rst;
+		}
+		
+		for (int i = 1; i <= star_cnt; ++i)
+		{
+			if (is_visited[i])
+				continue;
+			pq.push({ star_distance[curr][i], i });
+		}
+	}
+	return rst;
 }
 
 int main()
 {
-    ios_base::sync_with_stdio(false);
-    cin.tie(0); cout.tie(0);
+	ios_base::sync_with_stdio(false);
+	cin.tie(0); cout.tie(0);
+	
+	Input();
+	Initialize();
+	cout << fixed << setprecision(2) << PrimAlgorithm();
 
-    fill_n(parent, 101, -1);
-    float x, y;
-    cin >> star_cnt;
-    for (int i = 0; i < star_cnt; ++i)
-    {
-        cin >> x >> y;
-        positions.push_back({ x,y });
-    }
-
-    float dist;
-    for (int i = 0; i < star_cnt; ++i)
-    {
-        for (int j = i + 1; j < star_cnt; ++j)
-        {
-            dist = distance(i, j);
-            edges.push_back({ dist, i, j });
-        }
-    }
-
-    sort(edges.begin(), edges.end());
-
-    int cnt = 0;
-    int a, b;
-    int size = edges.size();
-    float answer = 0.f;
-    
-    for (int i = 0; i < size; ++i)
-    {
-        tie(dist, a, b) = edges[i];
-        if (Union_(a, b))
-        {
-            ++cnt;
-            answer += sqrt(dist);
-        }
-
-        if (cnt == star_cnt - 1)
-            break;
-    }
-
-    cout << fixed << setprecision(2) << answer;
-    return 0;
+	return 0;
 }
