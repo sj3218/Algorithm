@@ -7,8 +7,8 @@
 using namespace std;
 
 int N;
-long long board[100001][3];
-long long dp[100001][3];
+int board[100001][3];
+int dp[100001][3];
 const int INF = 0X7FFFFFFF;
 
 void Input()
